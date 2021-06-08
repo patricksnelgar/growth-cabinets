@@ -1,0 +1,43 @@
+---
+title: "Ambient"
+author: "Patrick Snelgar"
+date: "8/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message= FALSE)
+
+library(here)
+library(scales)
+library(magrittr)
+library(tidyverse)
+
+```
+```{r ambient}
+
+ambient_data <- 
+	read_csv(here("input/header-house-growth-cabinets-ambient.dat"), skip = 1)
+
+locations <- 
+	as.character(ambient_data[1,10:12])
+names <- 
+	c(names(ambient_data[,c(1, 3)]), 
+	  locations)
+
+ambient_data <- 
+	ambient_data[,c(-2, -7:-12)]
+
+names(ambient_data) <- names
+
+ambient_data %>%
+	pivot_longer(cols = 3:5, names_to = "sensor_location", values_to = "temperature") %>%
+	ggplot(aes(TMSTAMP, temperature, colour = sensor_location)) +
+		geom_point() +
+		geom_line() +
+		scale_x_datetime(breaks = pretty_breaks(24)) +
+		scale_y_continuous(breaks = pretty_breaks(10)) + 
+		theme_bw() +
+		theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+
+```
